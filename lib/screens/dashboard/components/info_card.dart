@@ -19,8 +19,8 @@ class InfoCard extends StatelessWidget {
     final double padding = 10;
 
     return Container(
-      width: screenWidth/2.2,
-      height: screenHeight/6,
+      width: screenWidth/2.4,
+      height: screenHeight/7,
       decoration: BoxDecoration(
         color: foregroundBlack,
         borderRadius: BorderRadius.circular(10)
@@ -37,7 +37,7 @@ class InfoCard extends StatelessWidget {
                 Text(
                   (isPrice ? '£' : '') +  (value == value.roundToDouble() ? value.toInt().toString() : value.toString()),
                   style: TextStyle(
-                    fontSize: screenHeight/30,
+                    fontSize: screenHeight/35,
                     fontWeight: FontWeight.w300,
                     color: mainWhite
                   ),
@@ -56,7 +56,7 @@ class InfoCard extends StatelessWidget {
             child: Text(
               title,
               style: TextStyle(
-                fontSize: screenHeight/30,
+                fontSize: screenHeight/32,
                 fontWeight: FontWeight.bold,
                 color: lightModeGreen
               ),
