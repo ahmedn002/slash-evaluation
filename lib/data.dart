@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:intl/intl.dart';
 
 class PurchaseData {
+  static double price = 0;
   static String _getDateFromDayOfYear(int dayOfYear) {
     DateTime date = DateTime(2023, 1, 1).add(Duration(days: dayOfYear - 1));
     return DateFormat('yyyy-MM-dd').format(date);
@@ -14,7 +15,9 @@ class PurchaseData {
 
   static double _getRandomPrice() {
     Random random = Random();
-    return (random.nextDouble() * 90.0 + 10.0).roundToDouble() / 100.0;
+    double r = (random.nextDouble() * 90.0 + 10.0);
+    price += r;
+    return r;
   }
 
   static Map<String, List<Map<String, dynamic>>> getData() {
@@ -30,6 +33,7 @@ class PurchaseData {
         });
       }
     }
+    print(price);
     return data;
   }
 }

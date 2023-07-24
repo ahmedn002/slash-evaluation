@@ -4,11 +4,10 @@ import '../../../app_colors.dart';
 
 class InfoCard extends StatelessWidget {
   final String title;
-  final double value;
+  final String value;
   final IconData icon;
-  final bool isPrice;
 
-  const InfoCard({super.key, required this.title, required this.value, required this.icon, required this.isPrice});
+  const InfoCard({super.key, required this.title, required this.value, required this.icon});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +34,7 @@ class InfoCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  (isPrice ? '£' : '') +  (value == value.roundToDouble() ? value.toInt().toString() : value.toString()),
+                  value,
                   style: TextStyle(
                     fontSize: screenHeight/35,
                     fontWeight: FontWeight.w300,
