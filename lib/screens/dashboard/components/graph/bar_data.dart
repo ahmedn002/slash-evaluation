@@ -23,7 +23,37 @@ class BarData {
         'THU',
         'FRI'
       ];
-    } else if (displayType == DisplayType.monthly) {
+      DateTime inputDate = DateTime.now();
+
+      int daysSinceSaturday = (inputDate.weekday + 1) % 7;
+      DateTime startDate = inputDate.subtract(Duration(days: daysSinceSaturday));
+      DateTime endDate = startDate.add(Duration(days: 6));
+
+      // Create list of dates for the week
+      List<DateTime> datesOfWeek = [];
+      DateTime date = startDate;
+      while (date.isBefore(endDate) || date.isAtSameMomentAs(endDate)) {
+        datesOfWeek.add(date);
+        date = date.add(Duration(days: 1));
+      }
+
+      totals = { for (var label in xLabels) label: 0};
+      for (int i = 0; i < datesOfWeek.length; i++) {
+        String date = datesOfWeek[i].toString().substring(0, 10);
+        if (data.keys.contains(date)) {
+          for (Map<String, dynamic> product in data[date]!) {
+            totals[xLabels[i]] = totals[xLabels[i]]! + product['price'];
+          }
+        }
+      }
+      List<double> totalsList = totals.values.toList();
+      parsedData = totalsList;
+      bars = [];
+      for (int i = 0; i < totalsList.length; i++) {
+        bars.add(Bar(x: i, y: totalsList[i]));
+      }
+
+    } else if (displayType == DisplayType.monthly || displayType == DisplayType.range) {
       xLabels = [
         'JAN',
         'FEB',
@@ -47,8 +77,10 @@ class BarData {
         }
       }
     }
+
     List<double> totalsList = totals.values.toList();
     parsedData = totalsList;
+    bars = [];
     for (int i = 0; i < totalsList.length; i++) {
       bars.add(Bar(x: i, y: totalsList[i]));
     }

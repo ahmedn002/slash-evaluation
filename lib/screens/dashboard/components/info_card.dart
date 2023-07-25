@@ -43,8 +43,8 @@ class InfoCard extends StatelessWidget {
                 ),
 
                 CircleAvatar(
-                  backgroundColor: backgroundBlack,
-                  child: Icon(icon, color: mainGreen, size: screenWidth*screenHeight/12000),
+                  backgroundColor: darkBlack,
+                  child: Icon(icon, color: mainGreen, size: screenWidth*screenHeight/15000),
                 )
               ],
             ),
@@ -57,7 +57,7 @@ class InfoCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: screenHeight/32,
                 fontWeight: FontWeight.bold,
-                color: lightModeGreen
+                color: darkWhite
               ),
             ),
           )

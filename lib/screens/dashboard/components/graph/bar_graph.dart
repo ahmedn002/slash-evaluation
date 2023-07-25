@@ -15,27 +15,18 @@ class BarGraph extends StatefulWidget {
 
 class _BarGraphState extends State<BarGraph> {
 
-  late final List<int> divValues;
+  late List<int> divValues;
   @override
   void initState() {
     super.initState();
-    List<double> yValues = widget.barData.parsedData;
-    yValues.sort();
-    double range = yValues[yValues.length-1];
-    double tickRange = range / 3;
-    int roundedTickRange = roundUpToNearestMultiple(tickRange);
-    int factor = (range ~/ roundedTickRange) ~/ 3;
-    print(factor);
-    divValues = [roundedTickRange, roundedTickRange*2*factor, roundedTickRange*3*factor];
-    // print(roundedTickRange);
-    print(divValues);
-    
+    initAxisRange();
   }
 
   @override
   Widget build(BuildContext context) {
-
-    return BarChart(BarChartData(
+    initAxisRange();
+    return BarChart(
+      BarChartData(
       backgroundColor: Colors.transparent,
       gridData: const FlGridData(show: false),
       borderData: FlBorderData(
@@ -48,16 +39,22 @@ class _BarGraphState extends State<BarGraph> {
         rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         leftTitles: AxisTitles(sideTitles: _leftTitles)
       ),
-      barTouchData: _barTouchData
-    ));
+      barTouchData: _barTouchData,
+      ),
+      swapAnimationCurve: Curves.decelerate,
+      swapAnimationDuration: const Duration(milliseconds: 350),
+    );
   }
 
   List<BarChartGroupData> _barGroups() {
-    return widget.barData.bars.map((bar) => BarChartGroupData(x: bar.x, barRods: [BarChartRodData(toY: bar.y, gradient: LinearGradient(
-      colors: [darkGreen, darkGreen, lightModeGreen, mainGreen],
-      begin: Alignment.bottomCenter,
-      end: Alignment.topCenter
+    print(widget.barData.bars.length);
+    List<BarChartGroupData> b = widget.barData.bars.map((bar) => BarChartGroupData(x: bar.x, barRods: [BarChartRodData(toY: bar.y, gradient: LinearGradient(
+        colors: [darkGreen, darkGreen, lightModeGreen, mainGreen],
+        begin: Alignment.bottomCenter,
+        end: Alignment.topCenter
     ))])).toList();
+    print(b.length);
+    return b;
   }
 
   SideTitles get _bottomTitles => SideTitles(
@@ -104,6 +101,8 @@ class _BarGraphState extends State<BarGraph> {
 
   BarTouchData get _barTouchData => BarTouchData(
     touchTooltipData: BarTouchTooltipData(
+      fitInsideVertically: true,
+      fitInsideHorizontally: true,
       tooltipBgColor: mainGrey,
       getTooltipItem: (group, groupIndex, rod, rodIndex) {
         String label = widget.barData.xLabels[group.x];
@@ -127,6 +126,19 @@ class _BarGraphState extends State<BarGraph> {
       }
     )
   );
+
+  void initAxisRange() {
+    List<double> yValues = widget.barData.parsedData;
+    yValues.sort();
+    double range = yValues[yValues.length-1];
+    double tickRange = range / 3;
+    int roundedTickRange = roundUpToNearestMultiple(tickRange);
+    int factor = (range ~/ roundedTickRange) ~/ 3;
+    print(factor);
+    divValues = [roundedTickRange, roundedTickRange*2*factor, roundedTickRange*3*factor];
+    // print(roundedTickRange);
+    print(divValues);
+  }
 
   int roundUpToNearestMultiple(double number) {
     if (number <= 0) return 0;
@@ -153,6 +165,5 @@ class _BarGraphState extends State<BarGraph> {
     } else {
       return '${(number / 1000000).toStringAsFixed(1)}M';
     }
-
   }
 }

@@ -2,6 +2,7 @@
 
 import 'package:currency_formatter/currency_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:slash_eval/app_colors.dart';
 import 'package:slash_eval/data.dart';
@@ -17,12 +18,15 @@ class DashBoard extends StatefulWidget {
   State<DashBoard> createState() => _DashBoardState();
 }
 
-class _DashBoardState extends State<DashBoard> {
+class _DashBoardState extends State<DashBoard> with SingleTickerProviderStateMixin {
   late final double earnings;
   late final int orders;
   late final Map<String, List<Map<String, dynamic>>> purchaseData;
-  @override
 
+  SelectButtonController _selectButtonController = SelectButtonController();
+  List<String> graphHeaders = ['Weekly', 'Monthly', 'Range'];
+
+  @override
   void initState() {
     purchaseData = PurchaseData.getData();
     List<dynamic> result = calculateEarningsAndOrders(purchaseData);
@@ -45,14 +49,23 @@ class _DashBoardState extends State<DashBoard> {
         )
       ),
       home: Scaffold(
-        backgroundColor: mainGrey,
+        backgroundColor: backgroundBlack,
         appBar: SlashAppBar(screenWidth, screenHeight),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             Column(
               children: [
-                HeaderText('Your Earnings', screenHeight/25),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    HeaderText('Your Earnings', screenHeight/25),
+                    Padding(
+                      padding: EdgeInsets.only(right: screenWidth/22),
+                      child: Icon(Icons.assignment_rounded, color: mainGreen, size: screenWidth*screenHeight/11000),
+                    ),
+                  ],
+                ),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -77,9 +90,21 @@ class _DashBoardState extends State<DashBoard> {
               ],
             ),
 
+            SizedBox(height: screenHeight/70),
+            Divider(color: mainGrey, indent: screenWidth/7, endIndent: screenWidth/7),
+
             Column(
               children: [
-                HeaderText('Analytics', screenHeight/25),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    HeaderText('Analytics', screenHeight/25),
+                    Padding(
+                      padding: EdgeInsets.only(right: screenWidth/22),
+                      child: Icon(Icons.insert_chart, color: mainGreen, size: screenWidth*screenHeight/11000),
+                    ),
+                  ],
+                ),
                 Container(
                   padding: EdgeInsets.symmetric(vertical: screenHeight/30, horizontal: screenWidth/20),
                   decoration: BoxDecoration(
@@ -91,27 +116,35 @@ class _DashBoardState extends State<DashBoard> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Monthly Earnings',
+                        '${graphHeaders[_selectButtonController.value]} Earnings',
                         style: TextStyle(
-                            fontSize: screenHeight/35,
-                            fontWeight: FontWeight.bold,
-                            color: lightGrey
+                          fontSize: screenHeight/35,
+                          fontWeight: FontWeight.bold,
+                          color: lightGrey
                         ),
                       ),
 
                       Container(
-                          margin: EdgeInsets.only(top: screenHeight/40),
-                          width: screenWidth/1.25,
-                          height: screenHeight/4,
-                          child: BarGraph(barData: BarData(displayType: DisplayType.monthly, data: purchaseData))
-                      )
+                        margin: EdgeInsets.symmetric(vertical: screenHeight/35),
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth/35, vertical: screenHeight/90),
+                        width: screenWidth/1.25,
+                        height: screenHeight/4,
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          color: darkBlack,
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        child: BarGraph(barData: BarData(displayType: DisplayType.values[_selectButtonController.value], data: purchaseData))
+                      ),
+
+                      SizedBox(width: screenWidth/1.25, child: Center(child: AnalyticsSelectButton(selectButtonController: _selectButtonController, onChange: () {
+                        setState(() {});
+                      })))
                     ],
                   )
                 )
               ],
             ),
-
-            AnalyticsSelectButton()
           ],
         ),
       ),
