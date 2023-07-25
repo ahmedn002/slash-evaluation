@@ -13,9 +13,14 @@ class PurchaseData {
     return random.nextInt(100) + 1;
   }
 
+  static double roundDouble(double value, int places){
+    num mod = pow(10.0, places);
+    return ((value * mod).round().toDouble() / mod);
+  }
+
   static double _getRandomPrice() {
     Random random = Random();
-    double r = (random.nextDouble() * 90.0 + 10.0);
+    double r = roundDouble(random.nextDouble() * 783 + 10.0, 2);
     price += r;
     return r;
   }

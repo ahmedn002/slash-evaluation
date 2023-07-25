@@ -43,7 +43,7 @@ class InfoCard extends StatelessWidget {
                 ),
 
                 CircleAvatar(
-                  backgroundColor: mainGrey,
+                  backgroundColor: backgroundBlack,
                   child: Icon(icon, color: mainGreen, size: screenWidth*screenHeight/12000),
                 )
               ],

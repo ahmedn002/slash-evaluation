@@ -12,6 +12,8 @@ Color backgroundWhite = const Color.fromARGB(255,245,245,247);
 
 Color mainGreen = const Color.fromARGB(255,184,239,46);
 
+Color darkGreen = const Color.fromARGB(255, 90, 118, 23);
+
 Color mainGrey = const Color.fromARGB(255,88,88,88);
 
 Color greyShadow = const Color.fromARGB(255, 185,185,187);
@@ -23,5 +25,7 @@ Color lightGrey = const Color.fromARGB(255, 217,217,217);
 Color lightModeGreen = const Color.fromARGB(255, 168, 213, 41);
 
 Color secondaryDarkBackgroundColor = const Color.fromARGB(255, 29,29,31);
+
+Color darkBlack = const Color.fromARGB(255, 10, 10, 11);
 
 Color secondaryForegroundWhite = const Color(0xFFD1D1D1);
