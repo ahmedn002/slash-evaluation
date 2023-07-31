@@ -2,7 +2,6 @@
 
 import 'package:currency_formatter/currency_formatter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:slash_eval/app_colors.dart';
 import 'package:slash_eval/data.dart';
@@ -23,7 +22,7 @@ class _DashBoardState extends State<DashBoard> with SingleTickerProviderStateMix
   late final int orders;
   late final Map<String, List<Map<String, dynamic>>> purchaseData;
 
-  SelectButtonController _selectButtonController = SelectButtonController();
+  final SelectButtonController _selectButtonController = SelectButtonController();
   List<String> graphHeaders = ['Weekly', 'Monthly', 'Range'];
 
   @override
@@ -160,7 +159,6 @@ class _DashBoardState extends State<DashBoard> with SingleTickerProviderStateMix
         earnings += order['price'];
       }
     }
-    print(earnings);
     return [earnings, orders];
   }
 

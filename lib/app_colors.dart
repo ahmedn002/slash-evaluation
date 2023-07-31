@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+Color background = const Color.fromARGB(255, 4, 4, 4);
+
 Color backgroundBlack =  const Color.fromARGB(0,30,30,30);
 
 //Color backgroundBlack =  const Color(0xFF1d1d1f);
@@ -24,11 +26,11 @@ Color greyShadow = const Color.fromARGB(255, 185,185,187);
 
 Color darkGrey = const Color(0xFF1d1d1f);
 
-Color lightGrey = const Color.fromARGB(255, 217,217,217);
+Color lightGrey = const Color.fromARGB(255, 181, 181, 181);
 
 Color lightModeGreen = const Color.fromARGB(255, 168, 213, 41);
 
-Color secondaryDarkBackgroundColor = const Color.fromARGB(255, 29,29,31);
+Color secondaryDarkBackgroundColor = const Color(0xFF131313);
 
 Color darkBlack = Colors.black54;
 

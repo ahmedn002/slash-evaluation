@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:collection/collection.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:slash_eval/app_colors.dart';
@@ -130,7 +130,7 @@ class _BarGraphState extends State<BarGraph> {
   void initAxisRange() {
     List<double> yValues = widget.barData.parsedData;
     yValues.sort();
-    double range = yValues[yValues.length-1];
+    double range = yValues.average;
     double tickRange = range / 3;
     int roundedTickRange = roundUpToNearestMultiple(tickRange);
     int factor = (range ~/ roundedTickRange) ~/ 3;

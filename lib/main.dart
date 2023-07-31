@@ -1,12 +1,8 @@
-import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:slash_eval/app_colors.dart';
-import 'package:slash_eval/data.dart';
-import 'package:slash_eval/screens/dashboard/dashboard.dart';
+import 'package:slash_eval/screens/create%20product/create_product.dart';
 
 void main() {
-  runApp(const DashBoard());
+  runApp(CreateProductScreen());
 }

@@ -14,6 +14,7 @@ class AnalyticsSelectButton extends StatefulWidget {
 
 class _AnalyticsSelectButtonState extends State<AnalyticsSelectButton> {
   int _selectedIndex = 1;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -22,7 +23,7 @@ class _AnalyticsSelectButtonState extends State<AnalyticsSelectButton> {
         color: darkBlack,
         borderRadius: BorderRadius.circular(5)
       ),
-      
+
       child: Stack(
         children: [
           AnimatedPositioned(

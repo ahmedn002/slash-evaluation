@@ -15,7 +15,7 @@ class InfoCard extends StatelessWidget {
     final double screenWidth = size.width;
     final double screenHeight = size.height;
 
-    final double padding = 10;
+    final double padding = screenWidth*screenHeight/50000;
 
     return Container(
       width: screenWidth/2.4,
