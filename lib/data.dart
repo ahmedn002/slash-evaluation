@@ -20,7 +20,7 @@ class PurchaseData {
 
   static double _getRandomPrice() {
     Random random = Random();
-    double r = roundDouble(random.nextDouble() * 7830 + 10.0, 2);
+    double r = roundDouble(random.nextDouble() * 830 + 10.0, 2);
     price += r;
     return r;
   }

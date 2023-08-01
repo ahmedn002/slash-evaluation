@@ -44,21 +44,23 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
 
   @override
   void initState() {
-    _colorAdditionForms = [ColorAdditionForm(
-      index: 0,
-      isPrimary: true,
-      onFormAddition: colorAdditionOnClick,
-      onImageSelection: (image) {
-        setState(() {
-          _productImage = image;
-        });
-      },
-      onColorSelection: (color) {
-        setState(() {
-          _colorAdditionFormsColors[0] = color;
-        });
-      }
-    )];
+    _colorAdditionForms = [
+      ColorAdditionForm(
+        key: UniqueKey(),
+        isPrimary: true,
+        onFormAddition: colorAdditionOnClick,
+        onImageSelection: (image) {
+          setState(() {
+            _productImage = image;
+          });
+        },
+        onColorSelection: (color) {
+          setState(() {
+            _colorAdditionFormsColors[0] = color;
+          });
+        }
+      )
+    ];
     _colorAdditionFormsColors = [mainGreen];
     super.initState();
   }
@@ -214,22 +216,16 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                 ),
               ),
 
-              // SizedBox(
-              //   height: screenHeight * 1.07,
-              //   child: PageView.builder(
-              //     scrollDirection: Axis.horizontal,
-              //     onPageChanged: (int index) => setState(() => _index = index),
-              //     itemBuilder: (BuildContext context, int index) {
-              //       // _colorScrollController.animateTo(index * 20, duration: Duration(seconds: 1), curve: Curves.decelerate);
-              //       return Center(child: _colorAdditionForms[index]);
-              //     },
-              //     itemCount: _colorAdditionForms.length,
-              //   )
-              // ),
+              SizedBox(
+                height: screenHeight * 1.07,
+                child: PageView(
+                  scrollDirection: Axis.horizontal,
+                  onPageChanged: (int index) => setState(() => _index = index),
+                  children: _colorAdditionForms.map((form) => Center(child: form)).toList(),
+                )
+              ),
+              // ..._colorAdditionForms,
 
-              Column(
-                children: _colorAdditionForms,
-              )
             ],
           ),
         ),
@@ -238,17 +234,22 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
   }
 
   void colorAdditionOnClick(ColorAdditionForm form) {
-    print([for(dynamic form in _colorAdditionForms) form.index]);
-    dynamic x = Random().nextDouble();
     setState(() {
       int index = _colorAdditionForms.indexOf(form)+1;
-      _colorAdditionForms.insert(index, ColorAdditionForm(index: x, isPrimary: false, onFormAddition: colorAdditionOnClick, onImageSelection: (_) {}, onColorSelection: (color) {setState(() {
-        _colorAdditionFormsColors[index] = color;
-      });}));
+      final newForm = ColorAdditionForm(
+        key: UniqueKey(),
+        isPrimary: false,
+        onFormAddition: colorAdditionOnClick,
+        onImageSelection: (_) {},
+        onColorSelection: (color) {
+          setState(() {
+            _colorAdditionFormsColors[index] = color;
+          });
+        }
+      );
+      _colorAdditionForms.insert(index, newForm);
       _colorAdditionFormsColors.insert(index, mainGreen);
-      _swiperController.move(index);
     });
-    print([for(dynamic form in _colorAdditionForms) form.index]);
   }
 }
 

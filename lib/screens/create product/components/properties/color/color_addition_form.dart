@@ -13,12 +13,11 @@ import 'package:slash_eval/screens/create%20product/components/slash_text_field.
 import 'package:slash_eval/screens/create%20product/create_product.dart';
 
 class ColorAdditionForm extends StatefulWidget {
-  final double index;
   final bool isPrimary;
   final Function(ColorAdditionForm) onFormAddition;
   final Function(Image) onImageSelection;
   final Function(Color) onColorSelection;
-  const ColorAdditionForm({super.key, required this.index, required this.isPrimary, required this.onFormAddition, required this.onImageSelection, required this.onColorSelection});
+  ColorAdditionForm({super.key, required this.isPrimary, required this.onFormAddition, required this.onImageSelection, required this.onColorSelection});
 
   @override
   State<ColorAdditionForm> createState() => _ColorAdditionFormState();
