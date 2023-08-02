@@ -135,8 +135,8 @@ class _ColorSelectorState extends State<ColorSelector> {
                 children: [
                   ElevatedButton(
                     onPressed: () {
-                      setState(() => _currentColor = widget.color);
                       Navigator.of(context).pop();
+                      print('SELECTED COLOR');
                       widget.onColorSelection(widget.color);
                     },
                     style: ElevatedButton.styleFrom(

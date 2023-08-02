@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:slash_eval/app_colors.dart';
 
 class SlashTextField extends StatelessWidget {
+  final bool isReadOnly;
   final TextEditingController controller;
   final double width;
   final bool horizontallyAlignLabel;
   final String labelText;
   final String hintText;
   final Function() onChange;
-  SlashTextField({super.key, required this.controller, required this.width, required this.horizontallyAlignLabel, required this.labelText, required this.hintText, required this.onChange});
+  SlashTextField({super.key, required this.isReadOnly, required this.controller, required this.width, required this.horizontallyAlignLabel, required this.labelText, required this.hintText, required this.onChange});
 
   double screenWidth = 750;
   double screenHeight = 1334;
@@ -28,7 +29,7 @@ class SlashTextField extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             TextFieldLabel(),
-            InputField(controller, width, screenHeight/55, hintText, onChange)
+            InputField(isReadOnly ,controller, width, screenHeight/55, hintText, onChange)
           ],
         ) : Column(
           children: [
@@ -40,7 +41,7 @@ class SlashTextField extends StatelessWidget {
                 ),
               ],
             ),
-            InputField(controller, width, screenHeight/55, hintText, onChange)
+            InputField(isReadOnly, controller, width, screenHeight/55, hintText, onChange)
           ],
         )
       )
@@ -48,10 +49,11 @@ class SlashTextField extends StatelessWidget {
 
   }
 
-  static SizedBox InputField(TextEditingController controller, double textFieldWidth, double fontSize, String hintText, Function() onChange) {
+  static SizedBox InputField(bool isReadOnly ,TextEditingController controller, double textFieldWidth, double fontSize, String hintText, Function() onChange) {
     return SizedBox(
       width: textFieldWidth,
       child: TextField(
+        readOnly: isReadOnly,
         controller: controller,
         cursorWidth: 2,
         cursorColor: mainGrey,
