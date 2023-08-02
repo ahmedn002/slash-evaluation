@@ -14,11 +14,14 @@ import 'package:slash_eval/screens/create%20product/create_product.dart';
 
 class ColorAdditionForm extends StatefulWidget {
   final bool isPrimary;
+  final bool hasPrice;
   final Function(ColorAdditionForm) onFormAddition;
+  final Function(ColorAdditionForm) onFormDeletion;
   final Function(Image) onImageSelection;
   final Function(Color) onColorSelection;
-  ColorAdditionForm({super.key, required this.isPrimary, required this.onFormAddition, required this.onImageSelection, required this.onColorSelection});
+  ColorAdditionForm({super.key, required this.isPrimary, required this.hasPrice, required this.onFormDeletion, required this.onFormAddition, required this.onImageSelection, required this.onColorSelection});
 
+  Color formColor = mainGreen;
   @override
   State<ColorAdditionForm> createState() => _ColorAdditionFormState();
 }
@@ -53,199 +56,230 @@ class _ColorAdditionFormState extends State<ColorAdditionForm> with AutomaticKee
     final double containerWidth = screenWidth/1.1;
     final double colorAdditionButtonRadius = screenWidth * screenHeight / 12000;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          padding: EdgeInsets.symmetric(vertical: screenHeight/40),
-          margin: EdgeInsets.symmetric(vertical: screenHeight/55),
-          width: containerWidth,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: secondaryDarkBackgroundColor
-          ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Text(
-                  'Add ${widget.isPrimary ? 'Primary' : 'a'} Color',
-                  style: TextStyle(
-                    fontSize: screenHeight/40,
-                    color: lightGrey
-                  ),
-                ),
+    widget.formColor = _productColor;
+    print('1: ${_productColor.toString()}');
+    print('2: ${widget.formColor.toString()}');
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: screenHeight/50),
-                      child: Column(
+    return Center(
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: EdgeInsets.symmetric(vertical: screenHeight/40),
+            margin: EdgeInsets.symmetric(vertical: screenHeight/55),
+            width: containerWidth,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: secondaryDarkBackgroundColor
+            ),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text(
+                    'Add ${widget.isPrimary ? 'Primary' : 'a'} Color',
+                    style: TextStyle(
+                      fontSize: screenHeight/40,
+                      color: lightGrey
+                    ),
+                  ),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: screenHeight/50),
+                        child: Column(
+                          children: [
+                            HeadingText('Select Image'),
+                            ImageSelector(
+                              onImageSelection: (imageFile) async {
+                                print('Called');
+                                _productImage = imageFile;
+                                Color generatedColor = await _findProductColor();
+                                print(generatedColor.toString());
+                                setState(() {
+                                  _productColor = generatedColor;
+                                });
+                                widget.onColorSelection(_productColor);
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      Column(
                         children: [
-                          HeadingText('Select Image'),
-                          ImageSelector(
-                            onImageSelection: (imageFile) async {
-                              print('Called');
-                              _productImage = imageFile;
-                              Color generatedColor = await _findProductColor();
-                              print(generatedColor.toString());
-                              setState(() {
-                                _productColor = generatedColor;
-                              });
-                              widget.onColorSelection(_productColor);
-                            },
+                          HeadingText('Choose Color'),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: screenWidth/25, vertical: screenHeight/90),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: foregroundBlack
+                            ),
+                            child: ColorSelector(color: _productColor, onColorSelection: (color) {setState(() {
+                              _productColor = color;
+                              widget.onColorSelection(color);
+                            });})
                           ),
                         ],
                       ),
-                    ),
+                    ],
+                  ),
 
-                    Column(
+                  FormDivider(screenWidth),
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: screenHeight/50),
+                    child: Column(
                       children: [
-                        HeadingText('Choose Color'),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: screenWidth/25, vertical: screenHeight/90),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: foregroundBlack
-                          ),
-                          child: ColorSelector(color: _productColor, onColorSelection: widget.onColorSelection)
+                        HeadingText('Choose Sizing System'),
+                        SelectionButton(
+                          selectButtonController: _sizingSystemController,
+                          options: const ['US', 'Euro', 'Custom'],
+                          buttonWidth: screenWidth/4,
+                          buttonHeight: screenHeight/17,
+                          onChange: (value) {
+                            setState(() {
+                              _customSizes = {};
+                              addCustomSizeInput();
+                            });
+                          }
                         ),
                       ],
                     ),
-                  ],
-                ),
-
-                FormDivider(screenWidth),
-
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: screenHeight/50),
-                  child: Column(
-                    children: [
-                      HeadingText('Choose Sizing System'),
-                      SelectionButton(
-                        selectButtonController: _sizingSystemController,
-                        options: const ['US', 'Euro', 'Custom'],
-                        buttonWidth: screenWidth/4,
-                        buttonHeight: screenHeight/17,
-                        onChange: (value) {
-                          setState(() {
-                            _customSizes = {};
-                            addCustomSizeInput();
-                          });
-                        }
-                      ),
-                    ],
                   ),
-                ),
 
-                if (_sizingSystemController.value != 'Custom')
-                SizedBox(height: screenHeight/30),
+                  if (_sizingSystemController.value != 'Custom')
+                  SizedBox(height: screenHeight/30),
 
-                ...<String, List<String>>{
-                  'US': ['XL', 'L', 'M', 'S', 'XS'],
-                  'Euro': ['40', '38', '36', '34', '32'],
-                  'Custom': [],
-                  'none': []
-                }[_sizingSystemController.value]!.map((size) {
-                  TextEditingController controller = TextEditingController();
-                  _sizeQuantityControllers.add(controller);
-                  return Container(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth/25),
+                  ...<String, List<String>>{
+                    'US': ['XL', 'L', 'M', 'S', 'XS'],
+                    'Euro': ['40', '38', '36', '34', '32'],
+                    'Custom': [],
+                    'none': []
+                  }[_sizingSystemController.value]!.map((size) {
+                    TextEditingController controller = TextEditingController();
+                    _sizeQuantityControllers.add(controller);
+                    return Container(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth/25),
+                      margin: EdgeInsets.only(bottom: screenHeight/80),
+                      width: screenWidth/1.7,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: Colors.black38
+                      ),
+                      child: SlashTextField(controller: controller, width: screenWidth/2.5, horizontallyAlignLabel: true, labelText: size, hintText: '$size Quantity', onChange: (){})
+                    );
+                  }).toList(),
+
+                  if (_sizingSystemController.value == 'Custom')
+                  ..._customSizes.keys.map((sizeInput) => Container(
+                    padding: EdgeInsets.symmetric(horizontal: screenWidth/20, vertical: screenHeight/120),
                     margin: EdgeInsets.only(bottom: screenHeight/80),
-                    width: screenWidth/1.7,
+                    width: screenWidth/1.4,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       color: Colors.black38
                     ),
-                    child: SlashTextField(controller: controller, width: screenWidth/2.5, horizontallyAlignLabel: true, labelText: size, hintText: '$size Quantity', onChange: (){})
-                  );
-                }).toList(),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        CircleAvatar(
+                          radius: screenWidth * screenHeight / 15000,
+                          backgroundColor: foregroundBlack,
+                          child: IconButton(
+                            icon: Icon(FontAwesomeIcons.trash, size: screenWidth * screenHeight / 19000, color: mainGreen),
+                            onPressed: () {
+                              setState(() {
+                                _customSizes.remove(sizeInput);
+                              });
+                            },
+                          ),
+                        ),
+                        sizeInput,
+                        _customSizes[sizeInput]!
+                      ],
+                    ),
+                  )),
 
-                if (_sizingSystemController.value == 'Custom')
-                ..._customSizes.keys.map((sizeInput) => Container(
-                  padding: EdgeInsets.symmetric(horizontal: screenWidth/20, vertical: screenHeight/120),
-                  margin: EdgeInsets.only(bottom: screenHeight/80),
-                  width: screenWidth/1.4,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    color: Colors.black38
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      CircleAvatar(
-                        radius: screenWidth * screenHeight / 15000,
-                        backgroundColor: foregroundBlack,
-                        child: IconButton(
-                          icon: Icon(FontAwesomeIcons.trash, size: screenWidth * screenHeight / 19000, color: mainGreen),
-                          onPressed: () {
-                            setState(() {
-                              _customSizes.remove(sizeInput);
-                            });
-                          },
+                  if (_sizingSystemController.value == 'Custom')
+                  GestureDetector(
+                    onTap: () {
+                      if (_customSizes.length != 6) {
+                        addCustomSizeInput();
+                      }
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: screenWidth/60, vertical: screenHeight/100),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: foregroundBlack,
+                      ),
+                      child: SizedBox(
+                        width: screenWidth/3,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: mainGreen,
+                              radius: screenWidth * screenHeight / 15000,
+                              child: Icon(FontAwesomeIcons.plus, color: foregroundBlack)
+                            ),
+                            const Text('Add Size')
+                          ],
                         ),
                       ),
-                      sizeInput,
-                      _customSizes[sizeInput]!
-                    ],
-                  ),
-                )),
-
-                if (_sizingSystemController.value == 'Custom')
-                GestureDetector(
-                  onTap: () {
-                    if (_customSizes.length != 6) {
-                      addCustomSizeInput();
-                    }
-                  },
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: screenWidth/60, vertical: screenHeight/100),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      color: foregroundBlack,
                     ),
-                    child: SizedBox(
-                      width: screenWidth/3,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: mainGreen,
-                            radius: screenWidth * screenHeight / 15000,
-                            child: Icon(FontAwesomeIcons.plus, color: foregroundBlack)
-                          ),
-
-                          const Text('Add Size')
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
-        ),
-
-        Positioned(
-          left: containerWidth - colorAdditionButtonRadius * 1.35 * 1.4,
-          child: CircleAvatar(
-            radius: colorAdditionButtonRadius * 1.35,
-            backgroundColor: background,
-            child: CircleAvatar(
-              radius: colorAdditionButtonRadius,
-              backgroundColor: mainGreen,
-              child: IconButton(
-                icon: Icon(FontAwesomeIcons.plus, size: colorAdditionButtonRadius * 1.1, color: foregroundBlack),
-                onPressed: () {
-                  print('Pressing');
-                  widget.onFormAddition(widget);
-                },
+                  )
+                ],
               ),
             ),
+          ),
+
+          Positioned(
+            left: containerWidth - colorAdditionButtonRadius * 1.35 * 1.4,
+            child: CircleAvatar(
+              radius: colorAdditionButtonRadius * 1.35,
+              backgroundColor: background,
+              child: CircleAvatar(
+                radius: colorAdditionButtonRadius,
+                backgroundColor: mainGreen,
+                child: IconButton(
+                  icon: Icon(FontAwesomeIcons.plus, size: colorAdditionButtonRadius * 1.1, color: foregroundBlack),
+                  onPressed: () {
+                    print('Pressing');
+                    widget.onFormAddition(widget);
+                  },
+                ),
+              ),
+            )
+          ),
+
+          if (!widget.isPrimary)
+          Positioned(
+            left: containerWidth - colorAdditionButtonRadius * 1.4,
+            top: screenHeight/12,
+            child: CircleAvatar(
+              radius: colorAdditionButtonRadius,
+              backgroundColor: background,
+              child: CircleAvatar(
+                radius: colorAdditionButtonRadius * 0.7,
+                backgroundColor: darkBlack,
+                child: IconButton(
+                  icon: Icon(FontAwesomeIcons.trash, size: colorAdditionButtonRadius * 0.7, color: mainGreen),
+                  onPressed: () {
+                    print('Pressing');
+                    widget.onFormDeletion(widget);
+                  },
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                ),
+              ),
+            )
           )
-        )
-      ]
+        ]
+      ),
     );
   }
 

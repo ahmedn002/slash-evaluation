@@ -33,7 +33,14 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
   List<ColorAdditionForm> _colorAdditionForms = [];
   List<Color> _colorAdditionFormsColors = [];
   int _index = 0;
-  SwiperController _swiperController = SwiperController();
+
+  final ItemScrollController _pageSelectorScrollController = ItemScrollController();
+
+  final PageController _pageController = PageController();
+  final Duration _swipePageAnimationDuration = const Duration(milliseconds: 1500);
+  final Duration _pageSelectorAnimationDuration = const Duration(milliseconds: 250);
+
+  final Curve _animationCurve = Curves.easeOutExpo;
 
   bool _isGlobalPrice = true;
 
@@ -48,7 +55,9 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
       ColorAdditionForm(
         key: UniqueKey(),
         isPrimary: true,
+        hasPrice: !_isGlobalPrice,
         onFormAddition: colorAdditionOnClick,
+        onFormDeletion: (_) {},
         onImageSelection: (image) {
           setState(() {
             _productImage = image;
@@ -132,8 +141,10 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                       }
                     ),
 
+                    if (_isGlobalPrice)
                     FormDivider(screenWidth),
 
+                    if (_isGlobalPrice)
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -186,30 +197,47 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
               FormDivider(screenWidth),
 
               Container(
-                padding: EdgeInsets.symmetric(vertical: screenHeight/90),
                 margin: EdgeInsets.only(top: screenHeight/60),
                 constraints: BoxConstraints(
                   maxWidth: screenWidth/2.05,
                   maxHeight: screenHeight/20
                 ),
                 decoration: BoxDecoration(
+                  border: Border.all(color: darkGrey),
                   borderRadius: BorderRadius.circular(10),
                   color: foregroundBlack,
                 ),
                 child: ScrollablePositionedList.builder(
+                  itemScrollController: _pageSelectorScrollController,
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
-                  itemCount: _colorAdditionFormsColors.length,
+                  itemCount: _colorAdditionForms.length,
                   itemBuilder: (BuildContext context, int index) {
                     return Center(
-                      child: Container(
-                        margin: EdgeInsets.only(left: screenWidth/25, right: _colorAdditionFormsColors.length == index+1 ? screenWidth/25 : 0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4),
-                          color: _colorAdditionFormsColors[index],
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _index = index;
+                            _pageController.animateToPage(index, duration: _swipePageAnimationDuration, curve: Curves.easeOutExpo);
+                          });
+                        },
+                        child: AnimatedContainer(
+                          duration: _pageSelectorAnimationDuration,
+                          padding: EdgeInsets.all(3),
+                          margin: EdgeInsets.only(left: screenWidth/25, right: _colorAdditionForms.length == index+1 ? screenWidth/25 : 0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: index == _index ? mainGrey : foregroundBlack,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4),
+                              color: _colorAdditionForms[index].formColor,
+                            ),
+                            width: 20,
+                            height: 20,
+                          ),
                         ),
-                        width: 20,
-                        height: 20,
                       ),
                     );
                   },
@@ -220,8 +248,12 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                 height: screenHeight * 1.07,
                 child: PageView(
                   scrollDirection: Axis.horizontal,
-                  onPageChanged: (int index) => setState(() => _index = index),
-                  children: _colorAdditionForms.map((form) => Center(child: form)).toList(),
+                  controller: _pageController,
+                  onPageChanged: (int index) => setState(() {
+                    _index = index;
+                    _pageSelectorScrollController.scrollTo(index: index, duration: _swipePageAnimationDuration, curve: _animationCurve);
+                  }),
+                  children: _colorAdditionForms.map((form) => Center(key: form.key, child: form)).toList(),
                 )
               ),
               // ..._colorAdditionForms,
@@ -239,7 +271,15 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
       final newForm = ColorAdditionForm(
         key: UniqueKey(),
         isPrimary: false,
+        hasPrice: !_isGlobalPrice,
         onFormAddition: colorAdditionOnClick,
+        onFormDeletion: (form) {
+          setState(() {
+            index = _colorAdditionForms.indexOf(form);
+            _colorAdditionForms.removeAt(index);
+            _pageController.animateToPage(index-1, duration: _swipePageAnimationDuration, curve: _animationCurve);
+          });
+        },
         onImageSelection: (_) {},
         onColorSelection: (color) {
           setState(() {
@@ -249,6 +289,8 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
       );
       _colorAdditionForms.insert(index, newForm);
       _colorAdditionFormsColors.insert(index, mainGreen);
+      _pageController.animateToPage(index, duration: _swipePageAnimationDuration, curve: _animationCurve);
+      _pageSelectorScrollController.scrollTo(index: index, duration: _swipePageAnimationDuration);
     });
   }
 }

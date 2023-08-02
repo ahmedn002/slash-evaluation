@@ -32,40 +32,45 @@ class _CategorySelectorState extends State<CategorySelector> {
             ),
           ),
 
-          Wrap(
-            alignment: WrapAlignment.center,
-            children: widget.categories.keys.map((category) => GestureDetector(
-              onTap: () {
-                setState(() {
-                  widget.categorySelectorController.value = category;
-                });
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 250),
-                margin: EdgeInsets.all(screenHeight * screenWidth / 17000),
-                width: screenHeight * screenWidth / 5500,
-                height: screenHeight * screenWidth / 5500,
-                decoration: BoxDecoration(
-                  border: Border.all(color: widget.categorySelectorController.value == category ? mainGreen : foregroundBlack, width: 1.5),
-                  borderRadius: BorderRadius.circular(screenHeight * screenWidth / 28000),
-                  color: foregroundBlack
+          Container(
+            height: screenHeight / 7.5,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: widget.categories.keys.map((category) => GestureDetector(
+                onTap: () {
+                  setState(() {
+                    widget.categorySelectorController.value = category;
+                  });
+                },
+                child: Center(
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 250),
+                    margin: EdgeInsets.symmetric(horizontal: screenWidth / 35),
+                    width: screenHeight * screenWidth / 5500,
+                    height: screenHeight * screenWidth / 5500,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: widget.categorySelectorController.value == category ? mainGreen : foregroundBlack, width: 1.5),
+                      borderRadius: BorderRadius.circular(screenHeight * screenWidth / 28000),
+                      color: foregroundBlack
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Image.asset(widget.categories[category]!, width: screenWidth/12,),
+                        Text(
+                          category,
+                          style: TextStyle(
+                            fontSize: screenHeight/70 * (category.length > 7 ? 0.9 - 0.05 * (category.length-7) : 1),
+                            fontWeight: FontWeight.bold,
+                            color: mainGrey
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Image.asset(widget.categories[category]!, width: screenWidth/12,),
-                    Text(
-                      category,
-                      style: TextStyle(
-                        fontSize: screenHeight/70 * (category.length > 7 ? 0.9 - 0.05 * (category.length-7) : 1),
-                        fontWeight: FontWeight.bold,
-                        color: mainGrey
-                      ),
-                    )
-                  ],
-                ),
-              ),
-            )).toList()
+              )).toList()
+            ),
           )
         ],
       ),
