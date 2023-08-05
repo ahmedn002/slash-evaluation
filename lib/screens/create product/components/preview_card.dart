@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:slash_eval/app_colors.dart';
 
 // ignore: must_be_immutable
@@ -19,44 +20,66 @@ class PreviewCard extends StatelessWidget {
     screenWidth = size.width;
     screenHeight = size.height;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.all(screenWidth*screenHeight/20000),
-          width: screenWidth/3,
-          height: screenHeight/8,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: foregroundBlack,
-          ),
-          child: Center(
-            child: image ?? FlutterLogo(size: screenWidth * screenHeight / 5000),
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              name.isNotEmpty ? name : 'Product Name',
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: screenWidth*screenHeight/80000, horizontal: screenWidth*screenHeight/50000),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: darkGrey
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(vertical: screenWidth*screenHeight/20000, horizontal: screenWidth*screenHeight/35000),
+            width: screenWidth/3,
+            height: screenHeight/8,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: foregroundBlack,
             ),
-          ],
-        ),
-        
-        RatingBar.builder(
-          itemBuilder: (context, _) => Icon(
-            Icons.star,
-            color: Colors.orangeAccent,
+            child: Center(
+              child: image ?? Text('/.', style: TextStyle(fontSize: screenHeight/15),),
+            ),
           ),
-          onRatingUpdate: (_) {},
-          initialRating: 4.5,
-          allowHalfRating: true,
-          itemSize: screenWidth * screenHeight / 20000,
-        ),
-        Text(
-          'EGP000.0'
-        )
-      ],
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(
+                        name.isNotEmpty ? name : 'Product Name',
+                      ),
+                    ],
+                  ),
+
+                  RatingBar.builder(
+                    itemBuilder: (context, _) => Icon(
+                      Icons.star,
+                      color: Colors.orangeAccent,
+                    ),
+                    onRatingUpdate: (_) {},
+                    initialRating: 4.5,
+                    allowHalfRating: true,
+                    itemSize: screenWidth * screenHeight / 20000,
+                  ),
+                  Text(
+                    'EGP000.0',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                    ),
+                  )
+                ],
+              ),
+              IconButton(onPressed: (){}, icon: Icon(FontAwesomeIcons.cartShopping, color: mainGreen))
+            ],
+          )
+        ],
+      ),
     );
   }
 }

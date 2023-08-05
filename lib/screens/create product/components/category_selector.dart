@@ -21,7 +21,7 @@ class _CategorySelectorState extends State<CategorySelector> {
     screenHeight = size.height;
 
     return Container(
-      margin: EdgeInsets.symmetric(vertical: screenHeight/55),
+      margin: EdgeInsets.symmetric(vertical: screenHeight/100),
       child: Column(
         children: [
           Text(
@@ -33,7 +33,7 @@ class _CategorySelectorState extends State<CategorySelector> {
           ),
 
           Container(
-            height: screenHeight / 7.5,
+            height: screenHeight / 8,
             child: ListView(
               scrollDirection: Axis.horizontal,
               children: widget.categories.keys.map((category) => GestureDetector(

@@ -2,8 +2,9 @@
 
 import 'dart:math';
 
-import 'package:card_swiper/card_swiper.dart';
+import 'package:expandable_page_view/expandable_page_view.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -39,6 +40,7 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
 
   final ItemScrollController _pageSelectorScrollController = ItemScrollController();
 
+  final PageController _mainPageController = PageController();
   final PageController _pageController = PageController();
   final Duration _swipePageAnimationDuration = const Duration(milliseconds: 1500);
   final Duration _pageSelectorAnimationDuration = const Duration(milliseconds: 250);
@@ -111,10 +113,12 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                 ),
               ),
 
-              body: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Container(
+              body: PageView(
+                controller: _mainPageController,
+                physics: NeverScrollableScrollPhysics(),
+                children: [
+                  Center(
+                    child: Container(
                       padding: EdgeInsets.symmetric(vertical: screenHeight / 40),
                       margin: EdgeInsets.symmetric(vertical: screenHeight / 55),
                       width: screenWidth / 1.1,
@@ -132,28 +136,28 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                           ),
 
                           SlashTextField(
-                            isReadOnly: false,
-                            controller: _productNameInputController,
-                            width: textFieldWidth,
-                            horizontallyAlignLabel: false,
-                            labelText: 'Name',
-                            hintText: 'Product Name',
-                            onChange: () {
-                              setState(() {
-                                print(_productNameInputController.value.text);
-                                productName = _productNameInputController.text;
-                              });
-                            }
+                              isReadOnly: false,
+                              controller: _productNameInputController,
+                              width: textFieldWidth,
+                              horizontallyAlignLabel: false,
+                              labelText: 'Name',
+                              hintText: 'Product Name',
+                              onChange: () {
+                                setState(() {
+                                  print(_productNameInputController.value.text);
+                                  productName = _productNameInputController.text;
+                                });
+                              }
                           ),
 
                           SlashTextField(
-                            isReadOnly: false,
-                            controller: _productDescriptionInputController,
-                            width: textFieldWidth,
-                            horizontallyAlignLabel: false,
-                            labelText: 'Description',
-                            hintText: 'Product Description',
-                            onChange: () {}
+                              isReadOnly: false,
+                              controller: _productDescriptionInputController,
+                              width: textFieldWidth,
+                              horizontallyAlignLabel: false,
+                              labelText: 'Description',
+                              hintText: 'Product Description',
+                              onChange: () {}
                           ),
 
                           FormDivider(screenWidth),
@@ -172,100 +176,143 @@ class _CreateProductScreenState extends State<CreateProductScreen> {
                           FormDivider(screenWidth),
 
                           PriceInput(
-                            screenWidth,
-                            screenHeight,
-                            formProviderValue.isGlobalPrice,
-                            (value) {
-                              _productPriceInputController.clear();
-                              formProviderValue.setGlobalPrice(value!);
+                              screenWidth,
+                              screenHeight,
+                              formProviderValue.isGlobalPrice,
+                                  (value) {
+                                _productPriceInputController.clear();
+                                formProviderValue.setGlobalPrice(value!);
+                              },
+                              _productPriceInputController,
+                              !formProviderValue.isGlobalPrice
+                          ),
+
+                          GestureDetector(
+                            onTap: () {
+                              _mainPageController.animateToPage(1, duration: _swipePageAnimationDuration, curve: _animationCurve);
                             },
-                            _productPriceInputController,
-                            !formProviderValue.isGlobalPrice
+                            child: Container(
+                              padding: EdgeInsets.symmetric(horizontal: screenWidth/30, vertical: screenHeight/100),
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  color: darkGrey
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircleAvatar(
+                                    backgroundColor: mainGreen,
+                                    child: Icon(FontAwesomeIcons.check, color: foregroundBlack),
+                                  ),
+                                  SizedBox(width: screenWidth/25),
+                                  Text('Submit')
+                                ],
+                              ),
+                            ),
                           )
                         ],
                       ),
                     ),
+                  ),
 
-                    FormDivider(screenWidth),
-
-                    Container(
-                      margin: EdgeInsets.only(top: screenHeight / 60),
-                      constraints: BoxConstraints(
-                          maxWidth: screenWidth / 2.05,
-                          maxHeight: screenHeight / 20
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: darkGrey),
-                        borderRadius: BorderRadius.circular(10),
-                        color: foregroundBlack,
-                      ),
-                      child: ScrollablePositionedList.builder(
-                        itemScrollController: _pageSelectorScrollController,
-                        shrinkWrap: true,
-                        scrollDirection: Axis.horizontal,
-                        itemCount: formProviderValue.selectedColors.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return Center(
-                            child: GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _index = index;
-                                  _pageController.animateToPage(
-                                    index,
-                                    duration: _swipePageAnimationDuration,
-                                    curve: Curves.easeOutExpo
-                                  );
-                                });
-                              },
-                              child: AnimatedContainer(
-                                duration: _pageSelectorAnimationDuration,
-                                padding: EdgeInsets.all(3),
-                                margin: EdgeInsets.only(left: screenWidth / 25, right: formProviderValue.selectedColors.length == index + 1 ? screenWidth / 25 : 0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(4),
-                                  color: index == _index ? mainGrey : foregroundBlack,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(color: darkGrey),
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: formProviderValue.selectedColors[index].selectedColor,
+                  SizedBox(
+                    width: screenWidth,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(top: screenHeight / 60),
+                          constraints: BoxConstraints(
+                              maxWidth: screenWidth / 2.05,
+                              maxHeight: screenHeight / 20
+                          ),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: darkGrey),
+                            borderRadius: BorderRadius.circular(10),
+                            color: foregroundBlack,
+                          ),
+                          child: ScrollablePositionedList.builder(
+                            itemScrollController: _pageSelectorScrollController,
+                            shrinkWrap: true,
+                            scrollDirection: Axis.horizontal,
+                            itemCount: formProviderValue.selectedColors.length,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Center(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _index = index;
+                                      _pageController.animateToPage(
+                                          index,
+                                          duration: _swipePageAnimationDuration,
+                                          curve: Curves.easeOutExpo
+                                      );
+                                    });
+                                  },
+                                  child: AnimatedContainer(
+                                    duration: _pageSelectorAnimationDuration,
+                                    padding: EdgeInsets.all(3),
+                                    margin: EdgeInsets.only(left: screenWidth / 25, right: formProviderValue.selectedColors.length == index + 1 ? screenWidth / 25 : 0),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      color: index == _index ? mainGrey : foregroundBlack,
+                                    ),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        border: Border.all(color: darkGrey),
+                                        borderRadius: BorderRadius.circular(4),
+                                        color: formProviderValue.selectedColors[index].selectedColor,
+                                      ),
+                                      width: 20,
+                                      height: 20,
+                                    ),
                                   ),
-                                  width: 20,
-                                  height: 20,
                                 ),
+                              );
+                            },
+                          ),
+                        ),
+
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: screenHeight / 1.2,
+                              child: PageView(
+                                controller: _pageController,
+                                onPageChanged: (int index) {
+                                  setState(() {
+                                    _index = index;
+                                    _pageSelectorScrollController.scrollTo(
+                                      index: index,
+                                      duration: _swipePageAnimationDuration,
+                                      curve: _animationCurve
+                                    );
+                                    print('PP: ${formProviderValue.selectedColors[_index]
+                                        .selectedColor}');
+                                  });
+                                },
+                                children: _colorAdditionForms.map((form) {
+                                  print('LLL: ${_colorAdditionForms.length}');
+                                  form.hasPrice = !_isGlobalPrice;
+                                  return Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      form,
+                                    ],
+                                  );
+                                }).toList()
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ),
+                          ],
+                        ),
 
-                    SizedBox(
-                        height: screenHeight * (formProviderValue.isGlobalPrice ? 1.07 : 1.17),
-                        child: PageView(
-                          scrollDirection: Axis.horizontal,
-                          controller: _pageController,
-                          onPageChanged: (int index) =>
-                            setState(() {
-                              _index = index;
-                              _pageSelectorScrollController.scrollTo(
-                                index: index,
-                                duration: _swipePageAnimationDuration,
-                                curve: _animationCurve);
-                                print('PP: ${formProviderValue.selectedColors[_index].selectedColor}');
-                            }),
-                          children: _colorAdditionForms.map((form) {
-                            form.hasPrice = !_isGlobalPrice;
-                            return Center(key: form.key, child: form);
-                          }).toList(),
-                        )
+                      ],
                     ),
-                    // ..._colorAdditionForms,
-
-                  ],
-                ),
-              ),
+                  )
+                ],
+              )
             );
           }
         ),
@@ -340,7 +387,8 @@ Row PriceInput(double screenWidth, double screenHeight, bool isGlobalPrice,void 
       ),
       AnimatedOpacity(
         opacity: !isReadOnly ? 1 : 0.4,
-        duration: Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOutExpo,
         child: Row(
           children: [
             SizedBox(

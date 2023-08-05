@@ -27,7 +27,9 @@ class _ColorSelectionInputState extends State<ColorSelectionInput> {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
       if (mounted) {
         final provider = Provider.of<FormProvider>(context, listen: false);
-        provider.selectedColors.add(widget);
+        if (!provider.selectedColors.contains(widget)) {
+          provider.selectedColors.add(widget);
+        }
         print(provider.selectedColors);
         provider.notify();
       }

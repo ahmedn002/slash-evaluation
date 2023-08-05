@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:flex_color_picker/flex_color_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -12,6 +13,7 @@ import 'package:slash_eval/screens/common/selection_button.dart';
 import 'package:slash_eval/screens/create%20product/components/properties/color/color_picker.dart';
 import 'package:slash_eval/screens/create%20product/components/properties/color/color_selection_input.dart';
 import 'package:slash_eval/screens/create%20product/components/image_selector.dart';
+import 'package:slash_eval/screens/create%20product/components/properties/material/material_selector.dart';
 import 'package:slash_eval/screens/create%20product/components/slash_text_field.dart';
 import 'package:slash_eval/screens/create%20product/components/properties/create_product.dart';
 
@@ -32,7 +34,13 @@ class VariationAdditionForm extends StatefulWidget {
 }
 
 class _VariationAdditionFormState extends State<VariationAdditionForm> with AutomaticKeepAliveClientMixin {
-  final ColorSelectionInput _colorSelectionInput = ColorSelectionInput();
+  Map<String, bool> variationOptions = {
+    'color': true,
+    'size': false,
+    'material': false
+  };
+
+  final ColorSelectionInput _colorSelectionInput = ColorSelectionInput(key: UniqueKey());
 
   final SelectionButtonController _sizingSystemController = SelectionButtonController();
   List<TextEditingController> _sizeQuantityControllers = [];
@@ -49,6 +57,9 @@ class _VariationAdditionFormState extends State<VariationAdditionForm> with Auto
   void initState() {
     _sizingSystemController.value = 'US';
     _productColor = widget.formColor;
+    SchedulerBinding.instance.addPostFrameCallback((timeStamp) {
+      variationOptions['color'] = false;
+    });
     super.initState();
   }
 
@@ -68,9 +79,6 @@ class _VariationAdditionFormState extends State<VariationAdditionForm> with Auto
     final double colorAdditionButtonRadius = screenWidth * screenHeight / 12000;
 
     widget.formColor = _productColor;
-    print('1: ${_productColor.toString()}');
-    print('2: ${widget.formColor.toString()}');
-    print('b: ${widget.hasPrice}');
 
     return Consumer<FormProvider>(
       builder: (BuildContext context, formProviderValue, Widget? child) {
@@ -78,59 +86,62 @@ class _VariationAdditionFormState extends State<VariationAdditionForm> with Auto
           clipBehavior: Clip.none,
           children: [
             Container(
-              padding: EdgeInsets.symmetric(vertical: screenHeight/40),
               margin: EdgeInsets.symmetric(vertical: screenHeight/55),
               width: containerWidth,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
                 color: secondaryDarkBackgroundColor
               ),
-              child: Center(
+              child: SingleChildScrollView(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
+                    SizedBox(height: screenHeight / 40),
                     Text(
-                      'Add ${widget.isPrimary ? 'Primary' : 'a'} Color',
+                      'Add ${widget.isPrimary ? 'Primary' : 'a'} Variation',
                       style: TextStyle(
                         fontSize: screenHeight/40,
                         color: lightGrey
                       ),
                     ),
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(vertical: screenHeight/50),
-                          child: Column(
-                            children: [
-                              HeadingText('Select Image'),
-                              ImageSelector(
-                                onImageSelection: (imageFile) async {
-                                  print('Called');
-                                  _productImage = imageFile;
-                                  Color generatedColor = await _findProductColor();
-                                  setState(() {
-                                    _productColor = generatedColor;
-                                    _colorSelectionInput.selectedColor = generatedColor;
-                                    formProviderValue.notify();
-                                  });
-                                },
-                              ),
-                            ],
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: screenHeight/50),
+                      child: Column(
+                        children: [
+                          HeadingText('Select up to 3 Images'),
+                          ImageSelector(
+                            onImageSelection: (imageFile) async {
+                              print('Called');
+                              _productImage = imageFile;
+                              Color generatedColor = await _findProductColor();
+                              setState(() {
+                                _productColor = generatedColor;
+                                _colorSelectionInput.selectedColor = generatedColor;
+                                formProviderValue.notify();
+                              });
+                            },
                           ),
-                        ),
+                        ],
+                      ),
+                    ),
+                    FormDivider(screenWidth),
 
-                        Column(
-                          children: [
-                            HeadingText('Choose Color'),
-                            _colorSelectionInput
-                          ],
-                        )
+                    if (variationOptions['color']!)
+                    Column(
+                      children: [
+                        SizedBox(height: screenHeight / 60),
+                        HeadingText('Choose Color'),
+                        SizedBox(width: screenWidth / 2, child: _colorSelectionInput),
+                        SizedBox(height: screenHeight / 60),
+                        FormDivider(screenWidth),
                       ],
                     ),
 
-                    FormDivider(screenWidth),
+
+
+                    if (variationOptions['size']!)
+                    SizeOptions(),
 
                     if (!formProviderValue.isGlobalPrice)
                     PriceInput(
@@ -147,106 +158,100 @@ class _VariationAdditionFormState extends State<VariationAdditionForm> with Auto
                     if(!formProviderValue.isGlobalPrice)
                     FormDivider(screenWidth),
 
-                    Padding(
-                      padding: EdgeInsets.symmetric(vertical: screenHeight/50),
-                      child: Column(
-                        children: [
-                          HeadingText('Choose Sizing System'),
-                          SelectionButton(
-                            selectButtonController: _sizingSystemController,
-                            options: const ['US', 'Euro', 'Custom'],
-                            buttonWidth: screenWidth/4,
-                            buttonHeight: screenHeight/17,
-                            onChange: (value) {
-                              setState(() {
-                                _customSizes = {};
-                                addCustomSizeInput();
-                              });
-                            }
-                          ),
-                        ],
-                      ),
+                    if (variationOptions['material']!)
+                    Column(
+                      children: [
+                        SizedBox(height: screenHeight/70),
+                        HeadingText('Choose Material'),
+                        const MaterialSelector(materials: [
+                          'Cotton', 'Leather', 'Denim', 'Silk', 'Wool', 'Polyster', 'Textile', 'Cashmere'
+                        ]),
+                        SizedBox(height: screenHeight/70),
+                        FormDivider(screenWidth)
+                      ],
                     ),
 
-                    if (_sizingSystemController.value != 'Custom')
-                    SizedBox(height: screenHeight/30),
-
-                    ...<String, List<String>>{
-                      'US': ['XL', 'L', 'M', 'S', 'XS'],
-                      'Euro': ['40', '38', '36', '34', '32'],
-                      'Custom': [],
-                      'none': []
-                    }[_sizingSystemController.value]!.map((size) {
-                      TextEditingController controller = TextEditingController();
-                      _sizeQuantityControllers.add(controller);
-                      return Container(
-                        padding: EdgeInsets.symmetric(horizontal: screenWidth/25),
-                        margin: EdgeInsets.only(bottom: screenHeight/80),
-                        width: screenWidth/1.7,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: Colors.black38
-                        ),
-                        child: SlashTextField(isReadOnly: false, controller: controller, width: screenWidth/2.5, horizontallyAlignLabel: true, labelText: size, hintText: '$size Quantity', onChange: (){})
-                      );
-                    }).toList(),
-
-                    if (_sizingSystemController.value == 'Custom')
-                    ..._customSizes.keys.map((sizeInput) => Container(
-                      padding: EdgeInsets.symmetric(horizontal: screenWidth/20, vertical: screenHeight/120),
-                      margin: EdgeInsets.only(bottom: screenHeight/80),
-                      width: screenWidth/1.4,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.black38
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CircleAvatar(
-                            radius: screenWidth * screenHeight / 15000,
-                            backgroundColor: foregroundBlack,
-                            child: IconButton(
-                              icon: Icon(FontAwesomeIcons.trash, size: screenWidth * screenHeight / 19000, color: mainGreen),
-                              onPressed: () {
-                                setState(() {
-                                  _customSizes.remove(sizeInput);
-                                });
-                              },
+                    PopupMenuButton(
+                      itemBuilder: (BuildContext context) => variationOptions.keys.map((option) => PopupMenuItem(
+                        onTap: () {
+                          setState(() {
+                            print('pressed');
+                            variationOptions[option] = !(variationOptions[option]!);
+                          });
+                        },
+                        child: Row(
+                          mainAxisAlignment: !variationOptions[option]! ? MainAxisAlignment.start : MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              option.capitalize,
                             ),
-                          ),
-                          sizeInput,
-                          _customSizes[sizeInput]!
-                        ],
-                      ),
-                    )),
 
-                    if (_sizingSystemController.value == 'Custom')
-                    GestureDetector(
-                      onTap: () {
-                        if (_customSizes.length != 6) {
-                          addCustomSizeInput();
-                        }
-                      },
+                            if (variationOptions[option]!)
+                            SizedBox(width: screenWidth/30),
+
+                            if (variationOptions[option]!)
+                            CircleAvatar(
+                              radius: screenHeight * screenWidth / 30000,
+                              backgroundColor: mainGreen,
+                              child: Icon(FontAwesomeIcons.check, size: screenHeight * screenWidth / 25000, color: darkGrey),
+                            ),
+                          ],
+                        ),
+                      )).toList(),
+                      color: foregroundBlack,
+                      position: PopupMenuPosition.under,
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(color: mainGrey, width: 1),
+                        borderRadius: BorderRadius.circular(10)
+                      ),
+                      surfaceTintColor: mainGreen,
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: screenWidth/60, vertical: screenHeight/100),
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth / 30, vertical: screenHeight / 80),
+                        margin: EdgeInsets.symmetric(vertical: screenHeight / 60),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10),
-                          color: foregroundBlack,
+                          color: darkGrey,
                         ),
-                        child: SizedBox(
-                          width: screenWidth/3,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: mainGreen,
-                                radius: screenWidth * screenHeight / 15000,
-                                child: Icon(FontAwesomeIcons.plus, color: foregroundBlack)
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: mainGreen,
+                              child: Icon(FontAwesomeIcons.plus, color: darkGrey),
+                            ),
+                            SizedBox(width: screenWidth/25),
+                            Text(
+                              'Add Option',
+                              style: TextStyle(
+                                fontSize: screenHeight / 50,
+                                fontWeight: FontWeight.bold
                               ),
-                              const Text('Add Size')
-                            ],
-                          ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    
+                    GestureDetector(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: screenWidth/30, vertical: screenHeight/100),
+                        margin: EdgeInsets.only(bottom: screenHeight / 80),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          color: darkGrey
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: mainGreen,
+                              child: Icon(FontAwesomeIcons.check, color: foregroundBlack),
+                            ),
+                            SizedBox(width: screenWidth/25),
+                            Text('Submit', style: TextStyle(
+                              fontWeight: FontWeight.bold
+                            ),)
+                          ],
                         ),
                       ),
                     )
@@ -312,6 +317,127 @@ class _VariationAdditionFormState extends State<VariationAdditionForm> with Auto
           color: lightGrey
         ),
       ),
+    );
+  }
+
+  Column SizeOptions() {
+    return Column(
+      children: [
+        Padding(
+          padding: EdgeInsets.symmetric(vertical: screenHeight/50),
+          child: Column(
+            children: [
+              HeadingText('Choose Sizing System'),
+              SelectionButton(
+                  selectButtonController: _sizingSystemController,
+                  options: const ['US', 'Euro', 'Custom'],
+                  buttonWidth: screenWidth/4,
+                  buttonHeight: screenHeight/17,
+                  onChange: (value) {
+                    setState(() {
+                      _customSizes = {};
+                      addCustomSizeInput();
+                    });
+                  }
+              ),
+            ],
+          ),
+        ),
+
+        if (_sizingSystemController.value != 'Custom')
+          SizedBox(height: screenHeight/30),
+
+        ...<String, List<String>>{
+          'US': ['XL', 'L', 'M', 'S', 'XS'],
+          'Euro': ['40', '38', '36', '34', '32'],
+          'Custom': [],
+          'none': []
+        }[_sizingSystemController.value]!.map((size) {
+          TextEditingController controller = TextEditingController();
+          _sizeQuantityControllers.add(controller);
+          return Container(
+              padding: EdgeInsets.symmetric(horizontal: screenWidth/25),
+              margin: EdgeInsets.only(bottom: screenHeight/80),
+              width: screenWidth/1.7,
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: Colors.black38
+              ),
+              child: SlashTextField(isReadOnly: false, controller: controller, width: screenWidth/2.5, horizontallyAlignLabel: true, labelText: size, hintText: '$size Quantity', onChange: (){})
+          );
+        }).toList(),
+
+        if (_sizingSystemController.value == 'Custom')
+        ..._customSizes.keys.map((sizeInput) => Container(
+          padding: EdgeInsets.symmetric(horizontal: screenWidth/20, vertical: screenHeight/120),
+          margin: EdgeInsets.only(bottom: screenHeight/80),
+          width: screenWidth/1.4,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: Colors.black38
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              CircleAvatar(
+                radius: screenWidth * screenHeight / 15000,
+                backgroundColor: foregroundBlack,
+                child: IconButton(
+                  icon: Icon(FontAwesomeIcons.trash, size: screenWidth * screenHeight / 19000, color: mainGreen),
+                  onPressed: () {
+                    setState(() {
+                      _customSizes.remove(sizeInput);
+                    });
+                  },
+                ),
+              ),
+              sizeInput,
+              _customSizes[sizeInput]!
+            ],
+          ),
+        )),
+
+        if (_sizingSystemController.value == 'Custom')
+        GestureDetector(
+          onTap: () {
+            if (_customSizes.length != 6) {
+              addCustomSizeInput();
+            }
+          },
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth/60, vertical: screenHeight/100),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: foregroundBlack,
+            ),
+            child: SizedBox(
+              width: screenWidth/3,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  CircleAvatar(
+                    backgroundColor: mainGreen,
+                    radius: screenWidth * screenHeight / 20000,
+                    child: Icon(FontAwesomeIcons.plus, color: foregroundBlack)
+                  ),
+                  Text(
+                    'Add Size',
+                    style: TextStyle(
+                      fontSize: screenHeight / 60,
+                      color: lightGrey
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ),
+
+        if (_sizingSystemController.value == 'Custom')
+        SizedBox(height: screenHeight/60),
+        
+        FormDivider(screenWidth)
+      ],
     );
   }
 
